@@ -1,0 +1,17 @@
+name: firestore_orm
+description: Simple object relational mapping for use Firebase Cloud Firestore
+version: 0.0.1
+author:
+homepage:
+
+environment:
+  sdk: '>=2.0.0 <3.0.0'
+
+dependencies:
+  source_gen:
+
+
+dev_dependencies:
+  test: ^1.3.3
+  build_runner: ^0.10.1+1
+
