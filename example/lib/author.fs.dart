@@ -16,6 +16,7 @@ final _oneToManyFields = {
 
 class AuthorFields {
   static const NAME = 'name';
+  static const ALIASES = 'aliases';
   static const AGE = 'age';
   static const NET_WORTH = 'netWorth';
   static const FIRST_BOOK = 'firstBook';
@@ -34,7 +35,7 @@ abstract class _$AuthorFirestoreMixin {
       deepToJson(this.toJson(), _oneToOneFields, _oneToManyFields);
 
   // Outputs a json structure suitable for use with dart:convert json.encode for converting to a
-  // string. Not suitable for insert into Firestore when the model cotnains nested objects
+  // string. Not suitable for insert into Firestore when the model contains nested objects
   Map<String, dynamic> toJson() => _$AuthorToJson(this);
 }
 

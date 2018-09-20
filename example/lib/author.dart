@@ -15,6 +15,7 @@ class Author extends Object
   Author(); 
   
   String name;
+  List<String> aliases;
   int age;
   double netWorth;
   Book firstBook;

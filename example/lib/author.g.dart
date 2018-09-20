@@ -9,6 +9,7 @@ part of 'author.dart';
 Author _$AuthorFromJson(Map<String, dynamic> json) {
   return Author()
     ..name = json['name'] as String
+    ..aliases = (json['aliases'] as List)?.map((e) => e as String)?.toList()
     ..age = json['age'] as int
     ..netWorth = (json['netWorth'] as num)?.toDouble()
     ..firstBook = json['firstBook'] == null
@@ -22,6 +23,7 @@ Author _$AuthorFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$AuthorToJson(Author instance) => <String, dynamic>{
       'name': instance.name,
+      'aliases': instance.aliases,
       'age': instance.age,
       'netWorth': instance.netWorth,
       'firstBook': instance.firstBook,

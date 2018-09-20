@@ -25,6 +25,6 @@ abstract class _$BookFirestoreMixin {
       deepToJson(this.toJson(), _oneToOneFields, _oneToManyFields);
 
   // Outputs a json structure suitable for use with dart:convert json.encode for converting to a
-  // string. Not suitable for insert into Firestore when the model cotnains nested objects
+  // string. Not suitable for insert into Firestore when the model contains nested objects
   Map<String, dynamic> toJson() => _$BookToJson(this);
 }

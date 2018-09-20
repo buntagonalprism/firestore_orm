@@ -105,7 +105,7 @@ class FirestoreOrmGenerator extends Generator {
 
 
   void printOneToOneFields(StringBuffer output, Map<String, String> oneToOneFields) {
-    output.writeln("final _oneToOneFields = {");
+    output.writeln("final _oneToOneFields = <String, Function>{");
 
     oneToOneFields.forEach((field, target) {
       output.writeln("'$field' : (obj) => (obj as $target).toFirestore(),");
@@ -116,7 +116,7 @@ class FirestoreOrmGenerator extends Generator {
   }
 
   void printOneToManyFields(StringBuffer output, Map<String, String> oneToManyFields) {
-    output.writeln("final _oneToManyFields = {");
+    output.writeln("final _oneToManyFields = <String, Function>{");
 
     oneToManyFields.forEach((field, target) {
       output.writeln("'$field' : (obj) => (obj as $target).toFirestore(),");
