@@ -145,6 +145,9 @@ class FirestoreOrmGenerator extends Generator {
       output.writeln("  @JsonKey(ignore: true)");
       output.writeln("  String documentPath;");
       output.writeln("");
+      output.writeln("  @JsonKey(ignore: true)");
+      output.writeln("  DocumentReference documentReference;");
+      output.writeln("");
     }
     output.writeln("  // Outputs a deeply-encoded map of object values suitable for insertion into Firestore");
     output.writeln("  Map<String, dynamic> toFirestore() => deepToJson(this.toJson(), _oneToOneFields, _oneToManyFields);");
@@ -162,6 +165,7 @@ class FirestoreOrmGenerator extends Generator {
       output.writeln("  final output = $modelName.fromJson(json);");
       output.writeln("  output.documentId = doc.documentID;");
       output.writeln("  output.documentPath = doc.reference.path;");
+      output.writeln("  output.documentReference = doc.reference;");
       output.writeln("  return output;");
       output.writeln("}");
       output.writeln();
