@@ -6,10 +6,6 @@
 
 part of 'publisher.dart';
 
-final _oneToOneFields = {};
-
-final _oneToManyFields = {};
-
 class PublisherFields {
   static const NAME = 'name';
   static const ADDRESS = 'address';
@@ -19,8 +15,7 @@ class PublisherFields {
 
 abstract class _$PublisherFirestoreMixin {
   // Outputs a deeply-encoded map of object values suitable for insertion into Firestore
-  Map<String, dynamic> toFirestore() =>
-      deepToJson(this.toJson(), _oneToOneFields, _oneToManyFields);
+  Map<String, dynamic> toFirestore() => deepToJson(this.toJson());
 
   // Outputs a json structure suitable for use with dart:convert json.encode for converting to a
   // string. Not suitable for insert into Firestore when the model contains nested objects

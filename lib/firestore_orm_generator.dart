@@ -38,8 +38,6 @@ class FirestoreOrmGenerator extends Generator {
 
           final includedFields = new List<String>();
           final ignoredFields = new List<String>();
-          final oneToOneFields = new Map<String, String>();
-          final oneToManyFields = new Map<String, String>();
           String timestampField;
 
           // Process strings defined as property getter functions
@@ -61,26 +59,6 @@ class FirestoreOrmGenerator extends Generator {
               continue;
             }
 
-            // Determine one to many fields in the document
-            final fieldType = fieldElem.type;
-            final fieldTypeAnnotations = fieldType.element.metadata.map((a) => a.element.enclosingElement.name.toString());
-
-            if (fieldTypeAnnotations.contains(_objectAnnotation)) {
-              oneToOneFields[fieldName] = fieldType.displayName;
-            }
-            else if (fieldType is InterfaceType && fieldType.name == "List") {
-              if (fieldType.typeArguments.length == 1) {
-                final listType = fieldType.typeArguments[0];
-                String listTargetName = listType.displayName;
-                final typeAnnotations = listType.element.metadata.map((a) => a.element.enclosingElement.name.toString());
-                if (typeAnnotations.contains(_objectAnnotation)) {
-                  oneToManyFields[fieldName] = listTargetName;
-                }
-              }
-            }
-
-
-
             // Capture a timestamp field
             if (propAnnotations.contains(_timestampAnnotation)) {
               timestampField = fieldName;
@@ -92,8 +70,6 @@ class FirestoreOrmGenerator extends Generator {
           }
           output.writeln("part of '$libraryName';");
           output.writeln();
-          printOneToOneFields(output, oneToOneFields);
-          printOneToManyFields(output, oneToManyFields);
           printFieldsClass(output, includedFields, modelName);
           printClassAndFunctions(output, modelName, annotations.contains(_documentAnnotation));
         }
@@ -104,27 +80,6 @@ class FirestoreOrmGenerator extends Generator {
   }
 
 
-  void printOneToOneFields(StringBuffer output, Map<String, String> oneToOneFields) {
-    output.writeln("final _oneToOneFields = <String, Function>{");
-
-    oneToOneFields.forEach((field, target) {
-      output.writeln("'$field' : (obj) => (obj as $target).toFirestore(),");
-    });
-
-    output.writeln("};");
-    output.writeln();
-  }
-
-  void printOneToManyFields(StringBuffer output, Map<String, String> oneToManyFields) {
-    output.writeln("final _oneToManyFields = <String, Function>{");
-
-    oneToManyFields.forEach((field, target) {
-      output.writeln("'$field' : (obj) => (obj as $target).toFirestore(),");
-    });
-    
-    output.writeln("};");
-    output.writeln();
-  }
 
   void printFieldsClass(StringBuffer output, List<String> fieldNames, String modelName) {
     output.writeln("class ${modelName}Fields {");
@@ -150,7 +105,7 @@ class FirestoreOrmGenerator extends Generator {
       output.writeln("");
     }
     output.writeln("  // Outputs a deeply-encoded map of object values suitable for insertion into Firestore");
-    output.writeln("  Map<String, dynamic> toFirestore() => deepToJson(this.toJson(), _oneToOneFields, _oneToManyFields);");
+    output.writeln("  Map<String, dynamic> toFirestore() => deepToJson(this.toJson());");
     output.writeln("");
     output.writeln("");
     output.writeln("  // Outputs a json structure suitable for use with dart:convert json.encode for converting to a");

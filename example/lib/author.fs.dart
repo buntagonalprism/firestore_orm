@@ -6,14 +6,6 @@
 
 part of 'author.dart';
 
-final _oneToOneFields = {
-  'firstBook': (obj) => (obj as Book).toFirestore(),
-};
-
-final _oneToManyFields = {
-  'books': (obj) => (obj as Book).toFirestore(),
-};
-
 class AuthorFields {
   static const NAME = 'name';
   static const ALIASES = 'aliases';
@@ -30,9 +22,11 @@ abstract class _$AuthorFirestoreMixin {
   @JsonKey(ignore: true)
   String documentPath;
 
+  @JsonKey(ignore: true)
+  DocumentReference documentReference;
+
   // Outputs a deeply-encoded map of object values suitable for insertion into Firestore
-  Map<String, dynamic> toFirestore() =>
-      deepToJson(this.toJson(), _oneToOneFields, _oneToManyFields);
+  Map<String, dynamic> toFirestore() => deepToJson(this.toJson());
 
   // Outputs a json structure suitable for use with dart:convert json.encode for converting to a
   // string. Not suitable for insert into Firestore when the model contains nested objects
@@ -44,5 +38,6 @@ Author _$AuthorFromFirestore(DocumentSnapshot doc) {
   final output = Author.fromJson(json);
   output.documentId = doc.documentID;
   output.documentPath = doc.reference.path;
+  output.documentReference = doc.reference;
   return output;
 }

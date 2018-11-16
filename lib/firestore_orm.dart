@@ -34,7 +34,9 @@ Map<String, dynamic> firestoreToJson(Map<dynamic, dynamic> input) {
     var value = input[key];
     if (value is List) {
       for (var i = 0; i < value.length; i++) {
-        value[i] = firestoreToJson(value[i]);
+        if (value[i] is Map) {
+          value[i] = firestoreToJson(value[i]);
+        }
       }
     } else if (value is Map) {
       value = firestoreToJson(value);
@@ -44,20 +46,49 @@ Map<String, dynamic> firestoreToJson(Map<dynamic, dynamic> input) {
   return output;
 }
 
-Map<String, dynamic> deepToJson(Map<String, dynamic> json, Map<String, Function> oneToOneFields, Map<String, Function> oneToManyFields) {
-  oneToManyFields.forEach((field, serializer) {
-    if (json[field] != null) {
-      for (var i = 0; i < (json[field] as List).length; i++) {
-        json[field][i] = serializer(json[field][i]);
-      }
-    } else {
-      json[field] = List<Map<String, dynamic>>();
+Map<String, dynamic> deepToJson(Map<String, dynamic> json) {
+
+  for (var key in json.keys) {
+    dynamic value = json[key];
+    if (_isArray(value)) {
+      json[key] = _convertListToJson(value);
     }
-  });
-  oneToOneFields.forEach((field, serializer) {
-    if (json[field] != null) {
-      json[field] = serializer(json[field]);
+    else if (_isNotJsonObject(value)) {
+      json[key] = _convertToJson(value);
     }
-  });
+  }
   return json;
 }
+
+List<Map<String, dynamic>> _convertListToJson(List<dynamic> items) {
+  final output = List<Map<String, dynamic>>();
+  for (var i = 0; i < items.length; i++) {
+    output.add(_convertToJson(items[i]));
+  }
+  return output;
+}
+
+Map<String, dynamic> _convertToJson(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+  Map<String, dynamic> output;
+  try {
+    output = value.toJson();
+  } catch (e) {
+    throw "Object of type ${value.runtimeType} missing required JSON serializer. Add toJson() class method or add JsonKey(ignore: true). Object value was: ${value.toString()}";
+  }
+  return deepToJson(output);
+}
+
+bool _isArray(dynamic value) {
+  return value is List;
+}
+
+bool _isNotJsonObject(dynamic value) {
+  return ! _allowedJsonTypes.contains(value.runtimeType);
+}
+
+
+final List<Type> _allowedJsonTypes = [bool, int, double, String, Map, List];
+

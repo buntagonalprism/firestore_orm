@@ -6,12 +6,6 @@
 
 part of 'book.dart';
 
-final _oneToOneFields = {
-  'publisher': (obj) => (obj as Publisher).toFirestore(),
-};
-
-final _oneToManyFields = {};
-
 class BookFields {
   static const TITLE = 'title';
   static const GENRE = 'genre';
@@ -21,8 +15,7 @@ class BookFields {
 
 abstract class _$BookFirestoreMixin {
   // Outputs a deeply-encoded map of object values suitable for insertion into Firestore
-  Map<String, dynamic> toFirestore() =>
-      deepToJson(this.toJson(), _oneToOneFields, _oneToManyFields);
+  Map<String, dynamic> toFirestore() => deepToJson(this.toJson());
 
   // Outputs a json structure suitable for use with dart:convert json.encode for converting to a
   // string. Not suitable for insert into Firestore when the model contains nested objects
