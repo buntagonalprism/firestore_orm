@@ -1,4 +1,4 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreDocument {
   final String path;
@@ -24,6 +24,13 @@ class FsTimestamp {
 /// millisecond timestamp (UTC time) when the model is created
 class FsCreateTime {
   const FsCreateTime();
+}
+
+typedef JsonParser<T> = T Function<T>(Map<String, dynamic> fromJson);
+
+T fromFirestore<T>(DocumentSnapshot doc, JsonParser<T> parser) {
+  final json = firestoreToJson(doc.data);
+  return parser(json);
 }
 
 /// Recursively maps firestore data, which is returned as Map<dynamic, dynamic> to the format
