@@ -26,7 +26,7 @@ class FsCreateTime {
   const FsCreateTime();
 }
 
-typedef JsonParser<T> = T Function<T>(Map<String, dynamic> fromJson);
+typedef JsonParser<T> = T Function(Map<String, dynamic> fromJson);
 
 T fromFirestore<T>(DocumentSnapshot doc, JsonParser<T> parser) {
   final json = firestoreToJson(doc.data);
