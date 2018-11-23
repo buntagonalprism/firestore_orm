@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreDocument {
@@ -27,6 +29,22 @@ class FsCreateTime {
 }
 
 typedef JsonParser<T> = T Function(Map<String, dynamic> fromJson);
+
+StreamTransformer<DocumentSnapshot, T> fsDocTransformer<T>(JsonParser<T> parser){
+  return StreamTransformer.fromHandlers(
+    handleData: (DocumentSnapshot doc, Sink<T> sink) {
+      sink.add(fromFirestore(doc, parser));
+    },
+  );
+}
+
+StreamTransformer<QuerySnapshot, Iterable<T>> fsListTransformer<T>(JsonParser<T> parser) {
+  return StreamTransformer.fromHandlers(
+    handleData: (QuerySnapshot query, Sink<Iterable<T>> sink) {
+      sink.add(query.documents.map((doc) => fromFirestore(doc, parser)));
+    },
+  );
+}
 
 T fromFirestore<T>(DocumentSnapshot doc, JsonParser<T> parser) {
   final json = firestoreToJson(doc.data);
