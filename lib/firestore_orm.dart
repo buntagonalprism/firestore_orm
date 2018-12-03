@@ -30,10 +30,14 @@ class FsCreateTime {
 
 typedef JsonParser<T> = T Function(Map<String, dynamic> fromJson);
 
-StreamTransformer<DocumentSnapshot, T> fsDocTransformer<T>(JsonParser<T> parser){
+StreamTransformer<DocumentSnapshot, T> fsDocTransformer<T>(JsonParser<T> parser, {T defaultIfNull}){
   return StreamTransformer.fromHandlers(
     handleData: (DocumentSnapshot doc, Sink<T> sink) {
-      sink.add(fromFirestore(doc, parser));
+      if (defaultIfNull != null && doc.data == null) {
+        sink.add(defaultIfNull);
+      } else {
+        sink.add(fromFirestore(doc, parser));
+      }
     },
   );
 }
