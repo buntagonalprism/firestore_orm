@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   source_gen:
-  cloud_firestore: ^0.8.0
+  cloud_firestore: ^0.9.0
 
 
 dev_dependencies:
