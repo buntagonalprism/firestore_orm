@@ -17,6 +17,10 @@ class FirestoreOrm {
 
   DocumentReference document(String path) => DocumentReference(_fs.document(path));
 
+  Future runTransaction(Future Function(Transaction tx) handler) {
+    return _fs.runTransaction((transaction) => handler(Transaction(transaction)));
+  }
+
   void clearCache() {
     _FirestoreCache.clear();
   }

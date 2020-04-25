@@ -14,4 +14,5 @@ part 'src/firestore_cache.dart';
 part 'src/firestore_orm.dart';
 part 'src/document.dart';
 part 'src/conversion.dart';
+part 'src/transaction.dart';
 
