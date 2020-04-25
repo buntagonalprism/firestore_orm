@@ -32,7 +32,7 @@ dynamic _valueToFirestore(dynamic value) {
     }
     return outputList;
   } else if (value is Map) {
-    final outputMap = List<dynamic>();
+    final outputMap = Map<dynamic, dynamic>();
     for (dynamic key in value.keys) {
       outputMap[key] = _valueToFirestore(value[key]);
     }
