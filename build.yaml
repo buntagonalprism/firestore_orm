@@ -1,7 +1,0 @@
-builders:
-  firestore_orm:
-    import: "package:firestore_orm/firestore_orm_builder.dart"
-    builder_factories: ["firestoreOrmBuilder"]
-    build_extensions: {".dart": [".fs.dart"]}
-    auto_apply: "root_package"
-    build_to: source

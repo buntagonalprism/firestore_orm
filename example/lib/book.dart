@@ -1,15 +1,10 @@
 import 'package:example/publisher.dart';
-import 'package:firestore_orm/firestore_orm.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-part 'book.fs.dart';
 
 part 'book.g.dart';
 
 @JsonSerializable()
-@FirestoreObject()
-class Book extends Object
-    with _$BookFirestoreMixin {
+class Book  {
 
   Book();
 
@@ -19,5 +14,5 @@ class Book extends Object
   Publisher publisher;
 
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
-
+  Map<String, dynamic> toJson() => _$BookToJson(this);
 }

@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Outputs deep to JSON structure', () async {
-    Map<String, dynamic> output = conanDoyle.toFirestore();
+    Map<String, dynamic> output = conanDoyle.toJson();
     expectNoObjectsInJson(output);
   });
 }
