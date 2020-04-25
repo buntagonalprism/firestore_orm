@@ -8,7 +8,7 @@ class FirestoreOrm {
 
   static fs.Firestore _fs;
 
-  static init(FirebaseApp firebaseApp) {
+  static init({FirebaseApp firebaseApp}) {
     _fs = fs.Firestore(app: firebaseApp);
     _instance = FirestoreOrm();
   }
