@@ -58,6 +58,11 @@ class DocumentReference {
     return _reference.setData(_valueToFirestore(values), merge: merge);
   }
 
+  /// Get a sub-collection within this document by name
+  CollectionReference collection(String collectionName) {
+    return CollectionReference(_reference.collection(collectionName));
+  }
+
   DataStream<DocumentSnapshot> _getSnapshots() {
     final collectionPath = _reference.parent().path;
     final cachedCollection = _FirestoreCache.getCollection(collectionPath);
