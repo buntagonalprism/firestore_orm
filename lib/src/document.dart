@@ -27,7 +27,7 @@ class DocumentReference {
 
   DocumentReference(this._reference);
 
-  /// The path of the collection which contains this document. 
+  /// The full path to this document, including its collection path and document ID. 
   String get path => _reference.path;
 
   /// Firestore ID of the document
@@ -36,6 +36,13 @@ class DocumentReference {
   /// Always returns a document snapshot even if the document does not yet exist. Check data = null
   /// to determine if a document does not exist in Firestore
   Future<DocumentSnapshot> get() async => DocumentSnapshot(await _reference.get());
+
+  /// Get the data of a document and parse it using the supplied data. If the document does not
+  /// exist then null will be returned. 
+  Future<T> parseData<T>(JsonParser<T> parser) async {
+    final snapshot = await get();
+    return _parseSnapshot(snapshot, _reference.parent().path, parser);
+  }
 
   /// Get the stream of document update events from Firestore. The Data stream is cached by 
   /// default, so if this document has been accessed in the past, the last-delivered value
@@ -97,20 +104,22 @@ class DocumentReference {
     final cachedDoc = cachedCollection.getDocument(documentID);
     DataStream<T> parsed = cachedDoc.getParsedStream(parser);
     if (parsed == null) {
-      parsed = raw.map((d) {
-        if (d.data != null) {
-          if (_FirestoreCache.isFirestoreDocumentType(d, parser)) {
-            d.data['path'] = collectionPath;
-            d.data['documentId'] = d.documentID;
-          }
-          final parsed = parser(d.data);
-          return parsed;
-        } else {
-          return null;
-        }
-      });
+      parsed = raw.map((d) => _parseSnapshot(d, collectionPath, parser));
       cachedDoc.addParsedStream(parser, parsed);
     }
     return cachedDoc.getParsedStream(parser);
+  }
+
+  T _parseSnapshot<T>(DocumentSnapshot d, String collectionPath, JsonParser<T> parser) {
+    if (d.data != null) {
+      if (_FirestoreCache.isFirestoreDocumentType(d, parser)) {
+        d.data['path'] = collectionPath + '/' + d.documentID;
+        d.data['documentId'] = d.documentID;
+      }
+      final parsed = parser(d.data);
+      return parsed;
+    } else {
+      return null;
+    }
   }
 }
