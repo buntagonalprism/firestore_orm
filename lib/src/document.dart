@@ -58,6 +58,9 @@ class DocumentReference {
     return _reference.setData(_valueToFirestore(values), merge: merge);
   }
 
+  /// Delete this document
+  Future delete() => _reference.delete();
+
   /// Get a sub-collection within this document by name
   CollectionReference collection(String collectionName) {
     return CollectionReference(_reference.collection(collectionName));
