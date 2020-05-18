@@ -58,13 +58,17 @@ class DocumentReference {
   /// Set data on this document by serializing the values from an object. The object must have a
   /// method called 'toJson' which returns a Map<String, dynamic> containing the data. All fields
   /// of the object will be updated. To update only specific fields in the document, use [setValues]
+  /// By default replaces the entire document. Set merge = true to only update fields present in
+  /// the supplied data and leave other existing document fields unchanged. 
   Future setData(dynamic data, {bool merge = false}) {
     return _reference.setData(_objectToFirestore(data), merge: merge);
   }
 
   /// Directly set the values of fields on this document. Allows individual field updates without
-  /// having to update the entire object using [setData]
-  Future setValues(Map<String, dynamic> values, {bool merge = false}) {
+  /// having to update the entire object using [setData]. By default merges the supplied
+  /// fields into any existing document data, leaving other fields unchanged. Set merge = false
+  /// to replace the entire document data with the supplied values. 
+  Future setValues(Map<String, dynamic> values, {bool merge = true}) {
     return _reference.setData(_valueToFirestore(values), merge: merge);
   }
 
