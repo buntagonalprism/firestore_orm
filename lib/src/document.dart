@@ -1,7 +1,10 @@
 part of firestore_orm;
 
 /// Implement this class to automatically have the path and document Id populated when
-/// using [parseSnapshots] in [DocumentReference] or [Query]
+/// using [parseSnapshots] or [parseData] in [DocumentReference] or [Query]. These fields
+/// should be included as part of json parsing in your model classes. 
+/// Values are supplied at retreival time only and are not saved back to Firestore on 
+/// update, as they are redundant with the path of the containing document.  
 abstract class FirestoreDocument {
   String get path;
   String get documentId;
