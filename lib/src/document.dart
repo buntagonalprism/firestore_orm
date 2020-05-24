@@ -117,16 +117,17 @@ class DocumentReference {
     return cachedDoc.getParsedStream(parser);
   }
 
-  T _parseSnapshot<T>(DocumentSnapshot d, String collectionPath, JsonParser<T> parser) {
-    if (d.data != null) {
-      if (_FirestoreCache.isFirestoreDocumentType(d, parser)) {
-        d.data['path'] = collectionPath + '/' + d.documentID;
-        d.data['documentId'] = d.documentID;
-      }
-      final parsed = parser(d.data);
-      return parsed;
-    } else {
-      return null;
+}
+
+T _parseSnapshot<T>(DocumentSnapshot d, String collectionPath, JsonParser<T> parser) {
+  if (d.data != null) {
+    if (_FirestoreCache.isFirestoreDocumentType(d, parser)) {
+      d.data['path'] = collectionPath + '/' + d.documentID;
+      d.data['documentId'] = d.documentID;
     }
+    final parsed = parser(d.data);
+    return parsed;
+  } else {
+    return null;
   }
 }
