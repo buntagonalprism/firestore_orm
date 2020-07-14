@@ -49,6 +49,10 @@ Map<String, dynamic> _objectToFirestore(dynamic object) {
   Map<String, dynamic> mappedData;
   try {
     mappedData = object.toJson();
+    if (object is FirestoreDocument) {
+      mappedData.remove('path');
+      mappedData.remove('documentId');
+    }
   } catch (_) {
     throw "Error preparing object of type ${object.runtimeType} for saving to Firestore. Ensure this type has a toJson method.";
   }

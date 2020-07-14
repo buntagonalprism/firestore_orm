@@ -1,7 +1,10 @@
 part of firestore_orm;
 
 /// Implement this class to automatically have the path and document Id populated when
-/// using [parseSnapshots] in [DocumentReference] or [Query]
+/// using [parseSnapshots] or [parseData] in [DocumentReference] or [Query]. These fields
+/// should be included as part of json parsing in your model classes. 
+/// Values are supplied at retreival time only and are not saved back to Firestore on 
+/// update, as they are redundant with the path of the containing document.  
 abstract class FirestoreDocument {
   String get path;
   String get documentId;
@@ -27,7 +30,7 @@ class DocumentReference {
 
   DocumentReference(this._reference);
 
-  /// The path of the collection which contains this document. 
+  /// The full path to this document, including its collection path and document ID. 
   String get path => _reference.path;
 
   /// Firestore ID of the document
@@ -36,6 +39,13 @@ class DocumentReference {
   /// Always returns a document snapshot even if the document does not yet exist. Check data = null
   /// to determine if a document does not exist in Firestore
   Future<DocumentSnapshot> get() async => DocumentSnapshot(await _reference.get());
+
+  /// Get the data of a document and parse it using the supplied data. If the document does not
+  /// exist then null will be returned. 
+  Future<T> parseData<T>(JsonParser<T> parser) async {
+    final snapshot = await get();
+    return _parseSnapshot(snapshot, _reference.parent().path, parser);
+  }
 
   /// Get the stream of document update events from Firestore. The Data stream is cached by 
   /// default, so if this document has been accessed in the past, the last-delivered value
@@ -48,15 +58,22 @@ class DocumentReference {
   /// Set data on this document by serializing the values from an object. The object must have a
   /// method called 'toJson' which returns a Map<String, dynamic> containing the data. All fields
   /// of the object will be updated. To update only specific fields in the document, use [setValues]
+  /// By default replaces the entire document. Set merge = true to only update fields present in
+  /// the supplied data and leave other existing document fields unchanged. 
   Future setData(dynamic data, {bool merge = false}) {
     return _reference.setData(_objectToFirestore(data), merge: merge);
   }
 
   /// Directly set the values of fields on this document. Allows individual field updates without
-  /// having to update the entire object using [setData]
-  Future setValues(Map<String, dynamic> values, {bool merge = false}) {
+  /// having to update the entire object using [setData]. By default merges the supplied
+  /// fields into any existing document data, leaving other fields unchanged. Set merge = false
+  /// to replace the entire document data with the supplied values. 
+  Future setValues(Map<String, dynamic> values, {bool merge = true}) {
     return _reference.setData(_valueToFirestore(values), merge: merge);
   }
+
+  /// Delete this document
+  Future delete() => _reference.delete();
 
   /// Get a sub-collection within this document by name
   CollectionReference collection(String collectionName) {
@@ -94,20 +111,23 @@ class DocumentReference {
     final cachedDoc = cachedCollection.getDocument(documentID);
     DataStream<T> parsed = cachedDoc.getParsedStream(parser);
     if (parsed == null) {
-      parsed = raw.map((d) {
-        if (d.data != null) {
-          if (_FirestoreCache.isFirestoreDocumentType(d, parser)) {
-            d.data['path'] = collectionPath;
-            d.data['documentId'] = d.documentID;
-          }
-          final parsed = parser(d.data);
-          return parsed;
-        } else {
-          return null;
-        }
-      });
+      parsed = raw.map((d) => _parseSnapshot(d, collectionPath, parser));
       cachedDoc.addParsedStream(parser, parsed);
     }
     return cachedDoc.getParsedStream(parser);
+  }
+
+}
+
+T _parseSnapshot<T>(DocumentSnapshot d, String collectionPath, JsonParser<T> parser) {
+  if (d.data != null) {
+    if (_FirestoreCache.isFirestoreDocumentType(d, parser)) {
+      d.data['path'] = collectionPath + '/' + d.documentID;
+      d.data['documentId'] = d.documentID;
+    }
+    final parsed = parser(d.data);
+    return parsed;
+  } else {
+    return null;
   }
 }

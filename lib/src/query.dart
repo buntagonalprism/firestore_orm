@@ -179,11 +179,5 @@ class QuerySnapshot {
 }
 
 List<T> Function(QuerySnapshot snapshot) _buildQuerySnapshotParser<T>(String collectionPath, JsonParser<T> parser) {
-  return (QuerySnapshot snapshot) => snapshot.documents.map((d) {
-    if (_FirestoreCache.isFirestoreDocumentType(d, parser)) {
-      d.data['path'] = collectionPath;
-      d.data['documentId'] = d.documentID;
-    }
-    return parser(d.data);
-  }).toList();
+  return (QuerySnapshot snapshot) => snapshot.documents.map((d) => _parseSnapshot(d, collectionPath, parser)).toList();
 }
