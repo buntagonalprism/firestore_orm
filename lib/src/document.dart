@@ -60,6 +60,8 @@ class DocumentReference {
   /// of the object will be updated. To update only specific fields in the document, use [setValues]
   /// By default replaces the entire document. Set merge = true to only update fields present in
   /// the supplied data and leave other existing document fields unchanged. 
+  /// 
+  /// Will create the document if it does not already exist
   Future setData(dynamic data, {bool merge = false}) {
     return _reference.setData(_objectToFirestore(data), merge: merge);
   }
@@ -68,8 +70,20 @@ class DocumentReference {
   /// having to update the entire object using [setData]. By default merges the supplied
   /// fields into any existing document data, leaving other fields unchanged. Set merge = false
   /// to replace the entire document data with the supplied values. 
+  /// 
+  /// Will create the document if it does not already exist
   Future setValues(Map<String, dynamic> values, {bool merge = true}) {
     return _reference.setData(_valueToFirestore(values), merge: merge);
+  }
+
+  /// Directly set the values of fields on this document. Allows individual field updates without
+  /// having to update the entire object using [setData]. Always merges the supplied fields into
+  /// any existing document data, leaving other fields unchanged. Supports setting nested map values
+  /// using dot notation.
+  /// 
+  /// The document must already exist for this operation to succeed.
+  Future updateValues(Map<String, dynamic> values) {
+    return _reference.updateData(_valueToFirestore(values));
   }
 
   /// Delete this document
