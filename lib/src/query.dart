@@ -7,7 +7,10 @@ class Query  {
   /// Set of all arguments used to build this query
   final Map<String, dynamic> args;
 
-  Query(this.query, this.args);
+  /// The collection this query is against
+  final CollectionReference reference;
+
+  Query(this.query, this.args, this.reference);
 
   Query where(
     String field, {
@@ -39,24 +42,24 @@ class Query  {
               'isGreaterThanOrEqualTo': isGreaterThanOrEqualTo,
               'arrayContains': arrayContains,
               'isNull': isNull,
-            });
+            }, this.reference);
 
   Query orderBy(String field, {bool descending = false}) => Query(
-      query.orderBy(field, descending: descending), this.args..['orderby'] = '$field:$descending');
+      query.orderBy(field, descending: descending), this.args..['orderby'] = '$field:$descending', this.reference);
 
   Query startAfter(List<dynamic> values) =>
-      Query(query.startAfter(values), this.args..['startAfter'] = values);
+      Query(query.startAfter(values), this.args..['startAfter'] = values, this.reference);
 
   Query startAt(List<dynamic> values) =>
-      Query(query.startAt(values), this.args..['startAt'] = values);
+      Query(query.startAt(values), this.args..['startAt'] = values, this.reference);
 
   Query endAt(List<dynamic> values) =>
-      Query(query.endAt(values), this.args..['endAt'] = values);
+      Query(query.endAt(values), this.args..['endAt'] = values, this.reference);
 
   Query endBefore(List<dynamic> values) =>
-      Query(query.endBefore(values), this.args..['endBefore'] = values);
+      Query(query.endBefore(values), this.args..['endBefore'] = values, this.reference);
 
-  Query limit(int length) => Query(query.limit(length), this.args..['length'] = length);
+  Query limit(int length) => Query(query.limit(length), this.args..['length'] = length, this.reference);
 
   /// When [useCache] is true, every query has its arguments and Firestore results stored in 
   /// memory, so that the results are synchronously available the next time they are needed. This 
@@ -72,7 +75,7 @@ class Query  {
 
   /// Retrieve the latest set of documents that match this query from Firestore. Always makes 
   /// a network request, even if the documents have been retrieved recently. 
-  Future<QuerySnapshot> getDocuments() async => QuerySnapshot(await query.getDocuments(), query.reference().path);
+  Future<QuerySnapshot> getDocuments() async => QuerySnapshot(await query.get(), reference.path);
 
   // Build a JSON string summarising the arguments applied to this query. Allows different query
   // objects to be compared. This method will always return the same string for any query that
@@ -88,7 +91,7 @@ class Query  {
   }
 
   DataStream<QuerySnapshot> _getSnapshots({bool useCache = true}) {
-    final collectionPath = query.reference().path;
+    final collectionPath = reference.path;
     if (useCache) {
       final cachedCollection = _FirestoreCache.getCollection(collectionPath);
       final cachedQuery = cachedCollection.getQuery(this);
@@ -98,7 +101,7 @@ class Query  {
 
           // If we have a cached value, and if the incoming snapshot does not have document changes
           // then we perform a diff check to decide whether to emit or not.
-          if (cachedQuery.raw.value != null && s.documents.length == s.documentChanges.length) {
+          if (cachedQuery.raw.value != null && s.docs.length == s.docChanges.length) {
             List<dynamic> cached = cachedQuery.raw.value.documents.map((d) => d.data).toList();
             List<dynamic> updated = updatedQuery.documents.map((d) => d.data).toList();
             if (cached.length == updated.length) {
@@ -132,7 +135,7 @@ class Query  {
 
   DataStream<Iterable<T>> _parseSnapshots<T>(JsonParser<T> parser, {bool useCache = true}) {
     final DataStream<QuerySnapshot> raw = _getSnapshots(useCache: useCache);
-    final collectionPath = query.reference().path;
+    final collectionPath = reference.path;
 
     if (useCache) {
       final cachedCollection = _FirestoreCache.getCollection(collectionPath);
@@ -153,15 +156,14 @@ class Query  {
 class CollectionReference extends Query  {
   final fs.CollectionReference collection;
 
-  CollectionReference(this.collection) : super(collection, {});
+  CollectionReference(this.collection) : super(collection, {}, CollectionReference(collection));
 
   String get id => collection.id;
 
   String get path => collection.path;
 
-  DocumentReference document([String path]) => DocumentReference(collection.document(path));
+  DocumentReference document([String path]) => DocumentReference(collection.doc(path));
 
-  CollectionReference reference() => CollectionReference(collection);
 }
 
 class QuerySnapshot {
@@ -171,7 +173,7 @@ class QuerySnapshot {
   QuerySnapshot(this.querySnapshot, this.collectionPath);
 
   List<DocumentSnapshot> get documents =>
-      querySnapshot.documents.map((d) => DocumentSnapshot(d)).toList();
+      querySnapshot.docs.map((d) => DocumentSnapshot(d)).toList();
 
   List<T> parseDocuments<T>(JsonParser<T> parser) {
     return _buildQuerySnapshotParser(collectionPath, parser)(this);

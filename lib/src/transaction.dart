@@ -10,11 +10,11 @@ class Transaction {
   /// of the object will be updated. To update only specific fields in the document, use [setValues]
   /// By default replaces the entire document. Set merge = true to only update fields present in
   /// the supplied data and leave other existing document fields unchanged. 
-  Future setData(DocumentReference ref, dynamic data, {bool merge = false}) {
+  Transaction setData(DocumentReference ref, dynamic data, {bool merge = false}) {
     if (merge) {
-      return transaction.update(ref._reference, _objectToFirestore(data));
+      return Transaction(transaction.update(ref._reference, _objectToFirestore(data)));
     } else {
-      return transaction.set(ref._reference, _objectToFirestore(data));
+      return Transaction(transaction.set(ref._reference, _objectToFirestore(data)));
     }
   }
 
@@ -22,15 +22,15 @@ class Transaction {
   /// having to update the entire object using [setData]. By default merges the supplied
   /// fields into any existing document data, leaving other fields unchanged. Set merge = false
   /// to replace the entire document data with the supplied values. 
-  Future setValues(DocumentReference ref, Map<String, dynamic> values, {bool merge = true}) {
+  Transaction setValues(DocumentReference ref, Map<String, dynamic> values, {bool merge = true}) {
     if (merge) {
-      return transaction.update(ref._reference, _valueToFirestore(values));
+      return Transaction(transaction.update(ref._reference, _valueToFirestore(values)));
     } else {
-      return transaction.set(ref._reference, _valueToFirestore(values));
+      return Transaction(transaction.set(ref._reference, _valueToFirestore(values)));
     }
   }
 
-  Future delete(DocumentReference ref) {
-    return transaction.delete(ref._reference);
+  Transaction delete(DocumentReference ref) {
+    return Transaction(transaction.delete(ref._reference));
   }
 }

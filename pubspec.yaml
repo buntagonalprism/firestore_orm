@@ -11,8 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   collection: ^1.14.12
-  cloud_firestore: ^0.13.5
-  firebase_core: ^0.4.4
+  cloud_firestore: ^0.14.0-dev.1
+  firebase_core: ^0.5.0-dev.2
   json_annotation: ^3.0.0
   building_blocs:
     git: 

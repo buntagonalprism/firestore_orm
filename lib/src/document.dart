@@ -16,13 +16,13 @@ class DocumentSnapshot {
   Map<String, dynamic> _data;
   DocumentSnapshot(this.snapshot) {
     if (snapshot.data != null) {
-      _data = _firestoreToJson(snapshot.data);
+      _data = _firestoreToJson(snapshot.data());
     }
   }
 
   Map<String, dynamic> get data => _data;
 
-  String get documentID => snapshot.documentID;
+  String get documentID => snapshot.id;
 }
 
 class DocumentReference {
@@ -34,7 +34,7 @@ class DocumentReference {
   String get path => _reference.path;
 
   /// Firestore ID of the document
-  String get documentID => _reference.documentID;
+  String get documentID => _reference.id;
 
   /// Always returns a document snapshot even if the document does not yet exist. Check data = null
   /// to determine if a document does not exist in Firestore
@@ -44,7 +44,7 @@ class DocumentReference {
   /// exist then null will be returned. 
   Future<T> parseData<T>(JsonParser<T> parser) async {
     final snapshot = await get();
-    return _parseSnapshot(snapshot, _reference.parent().path, parser);
+    return _parseSnapshot(snapshot, _reference.parent.path, parser);
   }
 
   /// Get the stream of document update events from Firestore. The Data stream is cached by 
@@ -63,7 +63,7 @@ class DocumentReference {
   /// 
   /// Will create the document if it does not already exist
   Future setData(dynamic data, {bool merge = false}) {
-    return _reference.setData(_objectToFirestore(data), merge: merge);
+    return _reference.set(_objectToFirestore(data), fs.SetOptions(merge: merge));
   }
 
   /// Directly set the values of fields on this document. Allows individual field updates without
@@ -73,7 +73,7 @@ class DocumentReference {
   /// 
   /// Will create the document if it does not already exist
   Future setValues(Map<String, dynamic> values, {bool merge = true}) {
-    return _reference.setData(_valueToFirestore(values), merge: merge);
+    return _reference.set(_valueToFirestore(values), fs.SetOptions(merge: merge));
   }
 
   /// Directly set the values of fields on this document. Allows individual field updates without
@@ -83,7 +83,7 @@ class DocumentReference {
   /// 
   /// The document must already exist for this operation to succeed.
   Future updateValues(Map<String, dynamic> values) {
-    return _reference.updateData(_valueToFirestore(values));
+    return _reference.update(_valueToFirestore(values));
   }
 
   /// Delete this document
@@ -95,7 +95,7 @@ class DocumentReference {
   }
 
   DataStream<DocumentSnapshot> _getSnapshots() {
-    final collectionPath = _reference.parent().path;
+    final collectionPath = _reference.parent.path;
     final cachedCollection = _FirestoreCache.getCollection(collectionPath);
     final cachedDoc = cachedCollection.getDocument(documentID);
     if (cachedDoc.raw == null) {
@@ -120,7 +120,7 @@ class DocumentReference {
   DataStream<T> _parseSnapshots<T>(JsonParser<T> parser) {
     final DataStream<DocumentSnapshot> raw = _getSnapshots();
 
-    final collectionPath = _reference.parent().path;
+    final collectionPath = _reference.parent.path;
     final cachedCollection = _FirestoreCache.getCollection(collectionPath);
     final cachedDoc = cachedCollection.getDocument(documentID);
     DataStream<T> parsed = cachedDoc.getParsedStream(parser);
