@@ -2,6 +2,53 @@ part of firestore_orm;
 
 typedef JsonParser<T> = T Function(Map<String, dynamic> json);
 
+/// URI encodings specifically for the characters prohibited as field paths
+/// by the Flutter cloud firestore plugin. These characters are actually allowed
+/// in Firestore, they just need suitable backtick escaping, however the Flutter
+/// plugin does not currently support the escaping. 
+final characterEncodings = {
+  '/': '%2F',
+  '[': '%5B',
+  ']': '%5D',
+  '.': '%2E',
+  '*': '%2A',
+  '~': '%7E',
+};
+
+void firestoreFieldPathUriEncoder(Map<String, dynamic> data) {
+  if (data != null) {
+    final keys = data.keys.toList();
+    for (String key in keys) {
+      String encoded = key;
+      for (String character in characterEncodings.keys) {
+        final encodedCharacter = characterEncodings[character];
+        encoded = encoded.replaceAll(character, encodedCharacter);
+      }
+      if (encoded != key) {
+        data[encoded] = data[key];
+        data.remove(key);
+      }
+    }
+  }
+}
+
+void firestoreFieldPathUriDecoder(Map<String, dynamic> json) {
+    if (json != null) {
+    final keys = json.keys.toList();
+    for (String key in keys) {
+      String decoded = key;
+      for (String character in characterEncodings.keys) {
+        final encodedCharacter = characterEncodings[character];
+        decoded = decoded.replaceAll(encodedCharacter, character);
+      }
+      if (decoded != key) {
+        json[decoded] = json[key];
+        json.remove(key);
+      }
+    }
+  }
+}
+
 Map<String, dynamic> _firestoreToJson(Map<dynamic, dynamic> input) {
   final output = Map<String, dynamic>();
   for (var key in input.keys) {
