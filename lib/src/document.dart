@@ -62,8 +62,8 @@ class DocumentReference {
   /// the supplied data and leave other existing document fields unchanged. 
   /// 
   /// Will create the document if it does not already exist
-  Future setData(dynamic data, {bool merge = false}) {
-    return _reference.set(_objectToFirestore(data), fs.SetOptions(merge: merge));
+  Future setData(dynamic data, {fs.SetOptions options}) {
+    return _reference.set(_objectToFirestore(data), options);
   }
 
   /// Directly set the values of fields on this document. Allows individual field updates without
@@ -72,14 +72,33 @@ class DocumentReference {
   /// to replace the entire document data with the supplied values. 
   /// 
   /// Will create the document if it does not already exist
-  Future setValues(Map<String, dynamic> values, {bool merge = true}) {
-    return _reference.set(_valueToFirestore(values), fs.SetOptions(merge: merge));
+  Future setValues(Map<String, dynamic> values, {fs.SetOptions options}) {
+    return _reference.set(_valueToFirestore(values), options);
   }
 
   /// Directly set the values of fields on this document. Allows individual field updates without
   /// having to update the entire object using [setData]. Always merges the supplied fields into
   /// any existing document data, leaving other fields unchanged. Supports setting nested map values
   /// using dot notation.
+  /// 
+  /// Note that dot notation cannot be used if nested map value field paths contain any invalid 
+  /// characters - for Firestore fields invalid characters are: ./[]*~
+  /// 
+  /// Instead setValues should be used with a nested data structure and the fields to update 
+  /// explicilty defined using FieldPaths. Using this approach the illegal charcters will be 
+  /// automatically escaped. 
+  /// 
+  /// ```dart
+  /// FieldPath fp = FieldPath(['eventsByDate', '17/08/2020']);
+  /// docRef.setValues(
+  ///   {
+  ///     'eventsByDate': {
+  ///       '17/08/2020': 'Some data',
+  ///     }
+  ///   },
+  ///   SetOptions(mergeFields: [fp]),
+  /// );
+  /// ```
   /// 
   /// The document must already exist for this operation to succeed.
   Future updateValues(Map<String, dynamic> values) {

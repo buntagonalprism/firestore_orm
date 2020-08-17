@@ -10,6 +10,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+export 'package:cloud_firestore/cloud_firestore.dart' show FieldPath, SetOptions;
+
 part 'src/query.dart';
 part 'src/firestore_cache.dart';
 part 'src/firestore_orm.dart';
