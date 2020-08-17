@@ -41,7 +41,7 @@ void encodeFirestoreFieldPaths(Map<String, dynamic> data) {
 }
 
 /// Decode a map which was stored URI encoded keys
-void firestoreFieldPathUriDecode(Map<String, dynamic> json) {
+void decodeFirestoreFieldPaths(Map<String, dynamic> json) {
     if (json != null) {
     final keys = json.keys.toList();
     for (String key in keys) {
