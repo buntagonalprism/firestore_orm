@@ -8,9 +8,11 @@ class Query  {
   final Map<String, dynamic> args;
 
   /// The collection this query is against
-  final CollectionReference reference;
+  final fs.CollectionReference _reference;
 
-  Query(this.query, this.args, this.reference);
+  Query(this.query, this.args, this._reference);
+
+  CollectionReference get reference => CollectionReference(_reference);
 
   Query where(
     String field, {
@@ -42,24 +44,24 @@ class Query  {
               'isGreaterThanOrEqualTo': isGreaterThanOrEqualTo,
               'arrayContains': arrayContains,
               'isNull': isNull,
-            }, this.reference);
+            }, this._reference);
 
   Query orderBy(String field, {bool descending = false}) => Query(
-      query.orderBy(field, descending: descending), this.args..['orderby'] = '$field:$descending', this.reference);
+      query.orderBy(field, descending: descending), this.args..['orderby'] = '$field:$descending', this._reference);
 
   Query startAfter(List<dynamic> values) =>
-      Query(query.startAfter(values), this.args..['startAfter'] = values, this.reference);
+      Query(query.startAfter(values), this.args..['startAfter'] = values, this._reference);
 
   Query startAt(List<dynamic> values) =>
-      Query(query.startAt(values), this.args..['startAt'] = values, this.reference);
+      Query(query.startAt(values), this.args..['startAt'] = values, this._reference);
 
   Query endAt(List<dynamic> values) =>
-      Query(query.endAt(values), this.args..['endAt'] = values, this.reference);
+      Query(query.endAt(values), this.args..['endAt'] = values, this._reference);
 
   Query endBefore(List<dynamic> values) =>
-      Query(query.endBefore(values), this.args..['endBefore'] = values, this.reference);
+      Query(query.endBefore(values), this.args..['endBefore'] = values, this._reference);
 
-  Query limit(int length) => Query(query.limit(length), this.args..['length'] = length, this.reference);
+  Query limit(int length) => Query(query.limit(length), this.args..['length'] = length, this._reference);
 
   /// When [useCache] is true, every query has its arguments and Firestore results stored in 
   /// memory, so that the results are synchronously available the next time they are needed. This 
@@ -156,7 +158,7 @@ class Query  {
 class CollectionReference extends Query  {
   final fs.CollectionReference collection;
 
-  CollectionReference(this.collection) : super(collection, {}, CollectionReference(collection));
+  CollectionReference(this.collection) : super(collection, {}, collection);
 
   String get id => collection.id;
 
