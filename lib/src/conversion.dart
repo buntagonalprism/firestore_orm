@@ -15,7 +15,7 @@ final characterEncodings = {
   '~': '%7E',
 };
 
-void firestoreFieldPathUriEncoder(Map<String, dynamic> data) {
+void firestoreFieldPathUriEncode(Map<String, dynamic> data) {
   if (data != null) {
     final keys = data.keys.toList();
     for (String key in keys) {
@@ -32,7 +32,7 @@ void firestoreFieldPathUriEncoder(Map<String, dynamic> data) {
   }
 }
 
-void firestoreFieldPathUriDecoder(Map<String, dynamic> json) {
+void firestoreFieldPathUriDecode(Map<String, dynamic> json) {
     if (json != null) {
     final keys = json.keys.toList();
     for (String key in keys) {
