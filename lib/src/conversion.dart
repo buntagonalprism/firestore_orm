@@ -15,15 +15,23 @@ final characterEncodings = {
   '~': '%7E',
 };
 
-void firestoreFieldPathUriEncode(Map<String, dynamic> data) {
+/// Encodes a single segment of a field path to be safe to store in Firestore
+String encodeFirestoreFieldPath(String fieldPath) {
+  String encoded = fieldPath;
+  for (String character in characterEncodings.keys) {
+    final encodedCharacter = characterEncodings[character];
+    encoded = encoded.replaceAll(character, encodedCharacter);
+  }
+  return encoded;
+}
+
+/// Encode a map which may have unsafe keys for storing in Firesotre, replacing
+/// the unsafe keys with encoded keys. 
+void encodeFirestoreFieldPaths(Map<String, dynamic> data) {
   if (data != null) {
     final keys = data.keys.toList();
     for (String key in keys) {
-      String encoded = key;
-      for (String character in characterEncodings.keys) {
-        final encodedCharacter = characterEncodings[character];
-        encoded = encoded.replaceAll(character, encodedCharacter);
-      }
+      final encoded = encodeFirestoreFieldPath(key);
       if (encoded != key) {
         data[encoded] = data[key];
         data.remove(key);
@@ -32,6 +40,7 @@ void firestoreFieldPathUriEncode(Map<String, dynamic> data) {
   }
 }
 
+/// Decode a map which was stored URI encoded keys
 void firestoreFieldPathUriDecode(Map<String, dynamic> json) {
     if (json != null) {
     final keys = json.keys.toList();
