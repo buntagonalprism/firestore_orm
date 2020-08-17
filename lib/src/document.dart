@@ -73,7 +73,7 @@ class DocumentReference {
   /// 
   /// Will create the document if it does not already exist
   Future setValues(Map<String, dynamic> values, {fs.SetOptions options}) {
-    return _reference.set(_valueToFirestore(values), options);
+    return _reference.set(_valueToFirestore(values), options ?? fs.SetOptions(merge: true));
   }
 
   /// Directly set the values of fields on this document. Allows individual field updates without
