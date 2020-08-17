@@ -15,7 +15,7 @@ class DocumentSnapshot {
 
   Map<String, dynamic> _data;
   DocumentSnapshot(this.snapshot) {
-    if (snapshot.data != null) {
+    if (snapshot.data() != null) {
       _data = _firestoreToJson(snapshot.data());
     }
   }
